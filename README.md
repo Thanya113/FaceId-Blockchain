@@ -139,7 +139,48 @@ python run_pipeline.py --image samples/portrait_elena.jpg --query "Elena Rostova
 
 ---
 
-## 5. Demonstrating Re-Verification & Tamper Evidence
+## 5. Free Cloud Deployment Guide
+
+The repository includes pre-configured deployment manifests (`render.yaml`, `Dockerfile`, and `Procfile`) for 1-click deployment on free cloud platforms:
+
+### Option A: Deploy Free on Render (Recommended)
+1. Sign up or log into [render.com](https://render.com/) (Free Tier, no credit card required).
+2. Click **New +** -> **Web Service**.
+3. Select **Build and deploy from a Git repository** and paste your repository link:
+   ```
+   https://github.com/Thanya113/FaceId-Blockchain
+   ```
+4. Render will automatically detect the settings from `render.yaml` / `Procfile`:
+   - **Environment**: `Python 3`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
+   - **Instance Type**: `Free`
+5. Click **Deploy Web Service**. Render will provision and launch your public HTTPS URL (e.g., `https://faceid-blockchain.onrender.com`).
+
+---
+
+### Option B: Deploy Free on Hugging Face Spaces
+1. Go to [huggingface.co/spaces](https://huggingface.co/spaces) and click **Create new Space**.
+2. Set Space Name (e.g., `faceid-blockchain`), License: `MIT`.
+3. Choose **Docker** (Blank) or **Gradio**.
+4. In Space Settings, link your GitHub repository `Thanya113/FaceId-Blockchain`.
+5. Hugging Face will automatically build the included `Dockerfile` and run the application with 16GB free RAM.
+
+---
+
+### Option C: Deploy with Docker (Any Container Host)
+```bash
+# 1. Build container image
+docker build -t faceid-blockchain .
+
+# 2. Run container on port 8000
+docker run -p 8000:8000 faceid-blockchain
+```
+Open `http://localhost:8000` to interact with the pipeline.
+
+---
+
+## 6. Demonstrating Re-Verification & Tamper Evidence
 
 During your screen recording:
 1. **Upload or Select Preset**: Click on `Alex` or `Elena` in the Quick Test Presets.
@@ -151,7 +192,7 @@ During your screen recording:
 
 ---
 
-## 6. Known Limitations & Future Enhancements
+## 7. Known Limitations & Future Enhancements
 
 1. **Social Platform Scraping Rate Limits**:
    - Modern social platforms (Reddit, Twitter/X, LinkedIn) enforce strict bot protection and rate limits on unauthenticated endpoints.
@@ -167,7 +208,7 @@ During your screen recording:
 
 ---
 
-## 7. Project Structure
+## 8. Project Structure
 
 ```
 HH3/
