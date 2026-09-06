@@ -1,0 +1,20 @@
+[
+  {
+    "index": 0,
+    "timestamp": 1788611720.332821,
+    "formatted_time": "2026-09-05 12:35:20 UTC",
+    "transactions": [
+      {
+        "tx_id": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "type": "GENESIS",
+        "description": "HH Goa 2026 Shortlisting Task 3 - Primordial Genesis Block",
+        "timestamp": 1788611720.332821,
+        "record_hash": "296b12f9798404dd84c66b047cd0d7cfd2e357b4eb0a4bb9fe2a5b6b956b636a"
+      }
+    ],
+    "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "merkle_root": "d87e32199cf75b4527c30f3a2a174df63e890ebabeb20a69aa0d4190062d2b8c",
+    "nonce": 212,
+    "hash": "00e8b50802d3ffe53571b15041182bc0883d40c01b56765dc621f6085ec425dc"
+  }
+]

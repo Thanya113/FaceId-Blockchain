@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VeriFace | Face ID & Blockchain Verification Pipeline</title>
+  <meta name="description" content="HH Goa 2026 Shortlisting Task 3: Detect and encode face from photo, find real matching social media post, and notarize to blockchain with verifiable tamper-evident proof.">
+  
+  <!-- Modern Fonts: Outfit for sleek modern UI, JetBrains Mono for cryptographic hashes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="dark-theme">
+  <!-- Top Navigation Header -->
+  <header class="navbar" id="main-header">
+    <div class="nav-container">
+      <div class="logo-group">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 3H5a2 2 0 0 0-2 2v4m0 6v4a2 2 0 0 0 2 2h4m6 0h4a2 2 0 0 0 2-2v-4m0-6V5a2 2 0 0 0-2-2h-4" />
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 16v1m-3-1v-1m6 1v-1" />
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title">VERIFACE <span class="badge-tag">HH GOA 2026</span></div>
+          <div class="brand-subtitle">Biometric Face Identification & Blockchain Verification</div>
+        </div>
+      </div>
+
+      <!-- Blockchain Live Status Badge -->
+      <div class="header-actions">
+        <div class="chain-status-pill" id="chain-status-badge">
+          <span class="pulse-dot"></span>
+          <span id="chain-height-text">Ledger: Block #0</span>
+          <span class="divider">|</span>
+          <span class="status-secure" id="chain-integrity-text">Verified</span>
+        </div>
+        
+        <button class="btn btn-secondary btn-sm" id="btn-open-explorer" title="Inspect Blocks">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+          Explorer
+        </button>
+
+        <button class="btn btn-secondary btn-sm" id="btn-toggle-terminal" title="Toggle Live Logs">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="4 17 10 11 4 5"/>
+            <line x1="12" y1="19" x2="20" y2="19"/>
+          </svg>
+          Logs
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Pipeline Stepper Progress -->
+  <main class="main-wrapper">
+    <nav class="stepper-nav" aria-label="Pipeline Progression">
+      <div class="step-indicator active" id="indicator-step-1" data-step="1">
+        <div class="step-num">1</div>
+        <div class="step-meta">
+          <span class="step-title">Face Biometrics</span>
+          <span class="step-desc">Detect & Encode</span>
+        </div>
+      </div>
+      <div class="stepper-line" id="line-step-1-2"></div>
+      <div class="step-indicator" id="indicator-step-2" data-step="2">
+        <div class="step-num">2</div>
+        <div class="step-meta">
+          <span class="step-title">Social Discovery</span>
+          <span class="step-desc">Search Real Post</span>
+        </div>
+      </div>
+      <div class="stepper-line" id="line-step-2-3"></div>
+      <div class="step-indicator" id="indicator-step-3" data-step="3">
+        <div class="step-num">3</div>
+        <div class="step-meta">
+          <span class="step-title">Blockchain Audit</span>
+          <span class="step-desc">Notarize & Verify</span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- CONTENT SECTIONS -->
+
+    <!-- STEP 1: FACE IDENTIFICATION -->
+    <section class="pipeline-section active" id="section-step-1">
+      <div class="section-grid">
+        <!-- Input Upload Column -->
+        <div class="panel upload-panel">
+          <div class="panel-header">
+            <h3>Input Photo Scan</h3>
+            <span class="badge">Biometric Ingestion</span>
+          </div>
+          
+          <div class="dropzone" id="image-dropzone">
+            <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" hidden>
+            <div class="dropzone-content" id="dropzone-prompt">
+              <div class="upload-icon-circle">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+              </div>
+              <p class="dropzone-primary-text">Drag & drop portrait photo here</p>
+              <p class="dropzone-sub-text">or <button type="button" class="link-btn" id="btn-browse-file">browse from device</button></p>
+            </div>
+            <!-- Image Preview Canvas overlay -->
+            <div class="preview-container hidden" id="preview-wrapper">
+              <img id="raw-preview-img" src="" alt="Face Scan Input">
+              <canvas id="detection-canvas"></canvas>
+            </div>
+          </div>
+
+          <!-- Quick Curated Test Portraits for 1-Click Testing -->
+          <div class="quick-samples">
+            <div class="samples-label">Quick Test Presets (Instant 1-Click Evaluation):</div>
+            <div class="samples-row" id="samples-container">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="panel-actions">
+            <button class="btn btn-primary btn-block" id="btn-scan-face" disabled>
+              <span class="btn-spinner hidden" id="scan-spinner"></span>
+              <span id="scan-btn-text">Detect & Encode Face</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Biometric Extraction Output Column -->
+        <div class="panel metrics-panel">
+          <div class="panel-header">
+            <h3>Biometric Feature Signature</h3>
+            <span class="badge badge-cyan">Feature Extractor</span>
+          </div>
+
+          <div class="biometric-empty-state" id="bio-empty-state">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="muted-icon">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <p>Upload an input photo to extract face bounding coordinates and 128-d biometric feature hash.</p>
+          </div>
+
+          <div class="biometric-results hidden" id="bio-results">
+            <!-- Cropped face chip & summary -->
+            <div class="bio-hero">
+              <img id="face-chip-img" class="face-chip" src="" alt="Cropped Normalized Face">
+              <div class="bio-stats">
+                <div class="stat-row">
+                  <span class="stat-label">Detection Status:</span>
+                  <span class="stat-value text-emerald" id="stat-detection-status">FACE_DETECTED</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">Confidence:</span>
+                  <span class="stat-value" id="stat-confidence">98.6%</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">Bounding Box:</span>
+                  <span class="stat-value mono" id="stat-bbox">[x: 342, y: 169, w: 351, h: 351]</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">Embedding Dimensions:</span>
+                  <span class="stat-value mono" id="stat-dims">128-D Normalized Vector</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Identified Public Figure Card (appears when known figure detected) -->
+            <div class="identified-person-card hidden" id="identified-person-card">
+              <div class="identified-badge">
+                <span class="pulse-dot"></span>
+                <span>Public Figure Identified</span>
+              </div>
+              <div class="person-name-row">
+                <h4 id="identified-person-name">Sundar Pichai</h4>
+                <span class="match-score-pill" id="identified-person-score">99.6% Match</span>
+              </div>
+              <p class="person-role" id="identified-person-role">Chief Executive Officer, Alphabet & Google</p>
+              <div class="handles-row" id="identified-person-handles"></div>
+            </div>
+
+            <!-- SHA-256 Biometric Fingerprint Hash Card -->
+            <div class="hash-card">
+              <div class="hash-card-header">
+                <span class="hash-type">SHA-256 Biometric Fingerprint (Immutable Target):</span>
+                <button class="copy-btn" id="btn-copy-face-hash" title="Copy Hash">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  Copy
+                </button>
+              </div>
+              <div class="hash-code-display mono" id="display-face-hash">0x0000...</div>
+            </div>
+
+            <!-- Vector Preview -->
+            <div class="vector-preview-box">
+              <div class="vector-title">Biometric Descriptor Vector Preview (First 8 Weights):</div>
+              <div class="vector-values mono" id="display-vector-preview">[0.0, 0.0, ...]</div>
+            </div>
+
+            <div class="panel-actions mt-4">
+              <button class="btn btn-emerald btn-block" id="btn-go-to-search">
+                Proceed to Social Media Search &rarr;
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2: SOCIAL MEDIA & WEB SEARCH -->
+    <section class="pipeline-section" id="section-step-2">
+      <div class="panel search-control-panel">
+        <div class="panel-header">
+          <div>
+            <h3>Search Web & Social Media</h3>
+            <p class="panel-desc">Query live public networks to find real matching social media posts with verified URLs.</p>
+          </div>
+          <span class="badge badge-indigo">Un-Hardcoded Search</span>
+        </div>
+
+        <div class="search-form-row">
+          <div class="search-input-wrap">
+            <input type="text" id="input-search-hint" class="text-input" placeholder="Search query / entity hint (e.g. Sundar Pichai, Bill Gates, Elon Musk)">
+          </div>
+          <div class="platform-filter-wrap">
+            <select id="select-platform-filter" class="select-input">
+              <option value="all">All Social Platforms</option>
+              <option value="twitter">X / Twitter</option>
+              <option value="reddit">Reddit</option>
+              <option value="linkedin">LinkedIn</option>
+              <option value="github">GitHub Profiles</option>
+              <option value="web">Web & Tech Forums</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="btn-execute-search">
+            <span class="btn-spinner hidden" id="search-spinner"></span>
+            <span id="search-btn-text">Execute Live Search</span>
+          </button>
+        </div>
+
+        <!-- Quick 1-Click Search Suggestions -->
+        <div class="search-tags-row">
+          <span style="font-size:0.75rem; color:var(--text-muted);">Quick Search Suggestions:</span>
+          <button type="button" class="query-chip" data-query="Sundar Pichai">Sundar Pichai</button>
+          <button type="button" class="query-chip" data-query="Bill Gates">Bill Gates</button>
+          <button type="button" class="query-chip" data-query="Elon Musk">Elon Musk</button>
+          <button type="button" class="query-chip" data-query="Satya Nadella">Satya Nadella</button>
+          <button type="button" class="query-chip" data-query="Jensen Huang">Jensen Huang</button>
+          <button type="button" class="query-chip" data-query="Sam Altman">Sam Altman</button>
+        </div>
+
+        <!-- Verified Public Profiles & Handles Banner -->
+        <div class="verified-directory-banner hidden" id="verified-directory-banner">
+          <div class="directory-header">
+            <span class="badge badge-emerald">Verified Official Handles</span>
+            <span id="directory-entity-title">Sundar Pichai (Alphabet &amp; Google)</span>
+          </div>
+          <div class="handles-grid" id="directory-handles-grid"></div>
+        </div>
+      </div>
+
+      <!-- Search Results Display Area -->
+      <div class="search-results-area" id="search-results-container">
+        <!-- Live Loading State -->
+        <div class="search-loading-card hidden" id="search-loading-state">
+          <div class="radar-spinner"></div>
+          <p class="loading-title">Querying Live Social Endpoints...</p>
+          <p class="loading-sub">Inspecting X/Twitter, Reddit discussions, GitHub identities & public knowledge graphs.</p>
+        </div>
+
+        <!-- Discovered Best Match Card -->
+        <div class="discovered-card hidden" id="discovered-match-card">
+          <div class="discovered-header">
+            <div class="match-badge-group">
+              <span class="platform-tag" id="match-platform-tag">TWITTER / X</span>
+              <span class="confidence-pill" id="match-confidence-pill">95.8% Visual Match</span>
+            </div>
+            <div class="source-engine-tag" id="match-source-engine">Discovered via Live Query</div>
+          </div>
+
+          <div class="discovered-body">
+            <h4 class="post-title" id="match-post-title">Excited to share our new decentralized biometric verification protocol!</h4>
+            <div class="post-meta">
+              <span class="author-handle" id="match-post-author">@alex_vance_ai</span>
+              <span class="meta-dot">&bull;</span>
+              <span class="real-url-label">Verified Source URL:</span>
+              <a href="#" target="_blank" rel="noopener noreferrer" class="real-link" id="match-post-link">https://...</a>
+            </div>
+            <p class="post-snippet" id="match-post-snippet">
+              We have successfully demonstrated tamper-evident proof of biometric credentials directly linked to public social activity.
+            </p>
+          </div>
+
+          <div class="discovered-footer">
+            <button class="btn btn-secondary btn-sm" id="btn-open-live-url">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+              Open Post in New Tab
+            </button>
+            <button class="btn btn-emerald" id="btn-proceed-to-blockchain">
+              Notarize Discovered Match on Blockchain &rarr;
+            </button>
+          </div>
+        </div>
+
+        <!-- Alternative Candidates Grid -->
+        <div class="candidates-section hidden" id="candidates-wrapper">
+          <h4 class="candidates-title">Other Candidate Results Discovered During Live Search:</h4>
+          <div class="candidates-grid" id="candidates-grid">
+            <!-- Candidate cards injected by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 3: BLOCKCHAIN NOTARIZATION & AUDIT -->
+    <section class="pipeline-section" id="section-step-3">
+      <div class="section-grid">
+        <!-- Notarization Action Panel -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Blockchain Notarization</h3>
+            <span class="badge badge-purple">Immutable Ledger</span>
+          </div>
+
+          <p class="panel-desc">
+            Constructs a canonical match digest of the face biometric fingerprint + discovered post URL + metadata, then mines a block with SHA-256 cryptographic chaining and Merkle proof.
+          </p>
+
+          <!-- Canonical Payload Preview -->
+          <div class="payload-preview-box">
+            <div class="payload-header">Canonical Record Payload to be Notarized:</div>
+            <pre class="json-preview mono" id="notarize-payload-json">{}</pre>
+          </div>
+
+          <div class="panel-actions">
+            <button class="btn btn-purple btn-block" id="btn-commit-blockchain">
+              <span class="btn-spinner hidden" id="notarize-spinner"></span>
+              <span id="notarize-btn-text">Mint Block & Commit to Blockchain</span>
+            </button>
+          </div>
+
+          <!-- Transaction Receipt Card -->
+          <div class="receipt-card hidden" id="receipt-card">
+            <div class="receipt-header">
+              <div class="receipt-icon">&#10003;</div>
+              <div>
+                <div class="receipt-title">Transaction Mined & Confirmed On-Chain</div>
+                <div class="receipt-subtitle" id="receipt-block-subtitle">Block #1 (Difficulty: 2)</div>
+              </div>
+            </div>
+
+            <div class="receipt-grid">
+              <div class="receipt-item">
+                <span class="receipt-label">Transaction ID (Tx Hash):</span>
+                <span class="receipt-val mono" id="receipt-tx-id">0x000...</span>
+              </div>
+              <div class="receipt-item">
+                <span class="receipt-label">Record SHA-256 Digest:</span>
+                <span class="receipt-val mono" id="receipt-record-hash">0x000...</span>
+              </div>
+              <div class="receipt-item">
+                <span class="receipt-label">Block Header Hash:</span>
+                <span class="receipt-val mono" id="receipt-block-hash">0x000...</span>
+              </div>
+              <div class="receipt-item">
+                <span class="receipt-label">Merkle Tree Root:</span>
+                <span class="receipt-val mono" id="receipt-merkle-root">0x000...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Verification & Tamper Evidence Audit Panel -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3>On-Chain Re-Verification & Audit</h3>
+            <span class="badge badge-emerald">Tamper-Proof Audit</span>
+          </div>
+
+          <p class="panel-desc">
+            Demonstrates mathematical proof of authenticity by re-verifying against the immutable on-chain record, or simulating data tampering to prove cryptographic detection.
+          </p>
+
+          <!-- Audit Action Buttons -->
+          <div class="audit-action-grid">
+            <button class="btn btn-emerald" id="btn-reverify-onchain" disabled>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              Re-Verify On-Chain Record
+            </button>
+
+            <button class="btn btn-danger" id="btn-simulate-tamper" disabled>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              Simulate Data Tampering
+            </button>
+          </div>
+
+          <!-- Dynamic Verification Result Box -->
+          <div class="verification-box hidden" id="verification-result-box">
+            <!-- Rendered by JS: either Green Valid Seal or Red Tamper Alert -->
+          </div>
+
+          <!-- Re-verify input test box -->
+          <div class="custom-verify-box mt-4">
+            <label for="custom-record-hash-input" class="input-label">Audit Any Record Hash on Chain:</label>
+            <div class="input-group">
+              <input type="text" id="custom-record-hash-input" class="text-input mono" placeholder="0x...">
+              <button class="btn btn-secondary" id="btn-audit-hash">Check Hash</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Slide-Out Block Explorer Drawer Modal -->
+  <aside class="drawer" id="explorer-drawer" aria-hidden="true">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+        </svg>
+        Blockchain Ledger Explorer
+      </div>
+      <button class="close-drawer-btn" id="btn-close-explorer">&times;</button>
+    </div>
+    <div class="drawer-body" id="explorer-blocks-list">
+      <!-- Mined blocks rendered dynamically -->
+    </div>
+  </aside>
+
+  <!-- Slide-Out Developer Terminal Console Drawer -->
+  <aside class="drawer terminal-drawer" id="terminal-drawer" aria-hidden="true">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="4 17 10 11 4 5"/>
+          <line x1="12" y1="19" x2="20" y2="19"/>
+        </svg>
+        Pipeline Execution Logs
+      </div>
+      <div class="terminal-actions">
+        <button class="btn btn-secondary btn-xs" id="btn-clear-terminal">Clear</button>
+        <button class="close-drawer-btn" id="btn-close-terminal">&times;</button>
+      </div>
+    </div>
+    <div class="terminal-body mono" id="terminal-logs">
+      <!-- Log lines injected here -->
+    </div>
+  </aside>
+
+  <div class="drawer-backdrop hidden" id="drawer-backdrop"></div>
+
+  <!-- Scripts -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
