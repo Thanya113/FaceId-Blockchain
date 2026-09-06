@@ -114,13 +114,19 @@ class FaceEngine:
 
     def _load_classifiers(self):
         """Loads OpenCV Haar Cascades for face and eye detection."""
-        if os.path.exists(self.face_cascade_path):
-            self.face_cascade = cv2.CascadeClassifier(self.face_cascade_path)
-        else:
-            print(f"[FaceEngine] Warning: Face cascade file not found at {self.face_cascade_path}")
+        try:
+            if hasattr(cv2, "CascadeClassifier"):
+                if os.path.exists(self.face_cascade_path):
+                    self.face_cascade = cv2.CascadeClassifier(self.face_cascade_path)
+                else:
+                    print(f"[FaceEngine] Warning: Face cascade file not found at {self.face_cascade_path}")
 
-        if os.path.exists(self.eye_cascade_path):
-            self.eye_cascade = cv2.CascadeClassifier(self.eye_cascade_path)
+                if os.path.exists(self.eye_cascade_path):
+                    self.eye_cascade = cv2.CascadeClassifier(self.eye_cascade_path)
+            else:
+                print("[FaceEngine] Warning: cv2.CascadeClassifier not found in current OpenCV build.")
+        except Exception as e:
+            print(f"[FaceEngine] Error loading cascade classifiers: {e}")
 
     def _load_image_to_cv2(self, image_input: Any) -> np.ndarray:
         """Helper to convert various image input formats into a BGR OpenCV NumPy array."""
